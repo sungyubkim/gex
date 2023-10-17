@@ -57,29 +57,21 @@ Official code implementation of "GEX: A flexible method for approximating influe
 
 * **Problem**: As sample-wise gradient ($g_z$) follows stable distribution (e.g., Gaussian, Cauch, and Lévy), bilinear self-influence ($g_z M g_z$) follows unimodal distribution (e.g., $\chi^2$). 
 
-![](./figs/problem.png)
+  ![](./figs/problem.png)
 
 See 
 
 * **Key Idea**: Influence Function can be interpreted as linearized sample-loss deivation (or more simply **covariance**) given parameters are sampled from Laplace Approximation. 
 
-$$
-\mathcal{I}(z,z') 
-= \mathbb{E}[ \Delta \ell^\mathrm{lin}(z, \psi) \cdot \Delta \ell^\mathrm{lin}(z', \psi)]
-= \mathrm{Cov}[\ell^\mathrm{lin}(z,\psi), \ell^\mathrm{lin}(z', \psi)].
-$$
+  $$
+  \mathcal{I}(z,z') 
+  = \mathbb{E}[ \Delta \ell^\mathrm{lin}(z, \psi) \cdot \Delta \ell^\mathrm{lin}(z', \psi)]
+  = \mathrm{Cov}[\ell^\mathrm{lin}(z,\psi), \ell^\mathrm{lin}(z', \psi)].
+  $$
 
 * **Solution**: (1) **Remove linearizations** in sample-loss deviation and (2) Replace Laplace Approximation with **Geometric Ensemble** to mitigate the singularity of Hessian.
 
-$$
-\mathcal{I}
-\overset{\texttt{Delinearization}}{\underset{\texttt{Section 4.1}}{\longrightarrow}}
-\mathcal{I}_\mathrm{LA}
-\overset{\texttt{LA to GE}}{\underset{\texttt{Section 4.2}}{\longrightarrow}}
-\mathcal{I}_\mathrm{GEX}
-$$
-
-![](./figs/solution.png)
+  ![](./figs/solution.png)
 
 ## Supporting post-hoc methods
 
