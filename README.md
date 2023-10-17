@@ -65,7 +65,6 @@ See
 
 $$
 \mathcal{I}(z,z') 
-= \mathbb{E}\left[ \Delta \ell^\mathrm{lin}_{\theta^*}(z, \psi) \cdot \Delta \ell^\mathrm{lin}_{\theta^*}(z', \psi)\right]
 = \mathrm{Cov}\left[\ell^\mathrm{lin}_{\theta^*}(z,\psi), \ell^\mathrm{lin}_{\theta^*}(z', \psi)\right].
 $$
 
