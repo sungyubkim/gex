@@ -65,8 +65,8 @@ See
 
 $$
 \mathcal{I}(z,z') 
-= \mathbb{E}_{\psi \sim p_\mathrm{LA}}[ \Delta \ell^\mathrm{lin}_{\theta^*}(z, \psi) \cdot \Delta \ell^\mathrm{lin}_{\theta^*}(z', \psi)]
-= \mathrm{Cov}_{\psi \sim p_\mathrm{LA}}[\ell^\mathrm{lin}_{\theta^*}(z,\psi), \ell^\mathrm{lin}_{\theta^*}(z', \psi)].
+= \mathbb{E}[ \Delta \ell^\mathrm{lin}(z, \psi) \cdot \Delta \ell^\mathrm{lin}(z', \psi)]
+= \mathrm{Cov}[\ell^\mathrm{lin}(z,\psi), \ell^\mathrm{lin}(z', \psi)].
 $$
 
 * **Solution**: (1) **Remove linearizations** in sample-loss deviation and (2) Replace Laplace Approximation with **Geometric Ensemble** to mitigate the singularity of Hessian.
