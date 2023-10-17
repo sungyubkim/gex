@@ -4,74 +4,75 @@ Official code implementation of "GEX: A flexible method for approximating influe
 
 ## How to use this repo?
 
-* Pull docker image for dependency
+### Pull docker image for dependency
 
-    ```shell
-    docker pull sungyubkim/jax:ntk-0.4.2
-    ```
+```shell
+docker pull sungyubkim/jax:ntk-0.4.2
+```
 
-* Run docker image
+### Run docker image
 
-    ```shell
-    docker run -p 8080:8080/tcp -it --rm --gpus all \
-    --ipc=host -v $PWD:/root -w /root \
-    sungyubkim/jax:ntk-0.4.2
-    ```
+```shell
+docker run -p 8080:8080/tcp -it --rm --gpus all \
+--ipc=host -v $PWD:/root -w /root \
+sungyubkim/jax:ntk-0.4.2
+```
 
-* To run a single python file, 
+### To run a single python file, 
 
-    ```shell
-    # to pre-train NN
-    python3 -m gex.pretrain.main \
-        --dataset=mnist \
-        --model=vgg \
-        --corruption_ratio=0.1
-    ```
+```shell
+# to pre-train NN
+python3 -m gex.pretrain.main \
+    --dataset=mnist \
+    --model=vgg \
+    --corruption_ratio=0.1
+```
 
-    ```shell
-    # to estimate influence of pre-trained NN
-    python3 -m gex.noisy.main \
-        --dataset=mnist \
-        --model=vgg \
-        --corruption_ratio=0.1 \
-        --num_ens=8 \
-        --ft_lr=0.05 \
-        --ft_step=800 \
-        --ft_lr_sched=cosine \
-        --if_method=la_fge
-    ```
+```shell
+# to estimate influence of pre-trained NN
+python3 -m gex.noisy.main \
+    --dataset=mnist \
+    --model=vgg \
+    --corruption_ratio=0.1 \
+    --num_ens=8 \
+    --ft_lr=0.05 \
+    --ft_step=800 \
+    --ft_lr_sched=cosine \
+    --if_method=la_fge
+```
 
-* To run multiple python files at once with `./gex/{task}/total.sh`
+### To run multiple python files at once with `./gex/{task}/total.sh`
 
-    ```shell
-    bash gex/mnist/total.sh
-    ```
+```shell
+bash gex/mnist/total.sh
+```
 
-* Basically, results files (e.g., log, checkpoints, plots) will be saved in 
+### Basically, results files (e.g., log, checkpoints, plots) will be saved in 
 
-    ```shell
-    ./gex/{task}/result/{pretrain_hyperparameter_settings}/{posthoc_hyperparameter_settings}
-    ```
+```shell
+./gex/{task}/result/{pretrain_hyperparameter_settings}/{posthoc_hyperparameter_settings}
+```
 
 ## Motivation: Identifying and Resolving Distributional Bias in Influence
 
-* **Problem**: As sample-wise gradient ($g_z$) follows stable distribution (e.g., Gaussian, Cauch, and Lévy), bilinear self-influence ($g_z M g_z$) follows unimodal distribution (e.g., $\chi^2$). 
+### Problem
+As sample-wise gradient ($g_z$) follows stable distribution (e.g., Gaussian, Cauch, and Lévy), bilinear self-influence ($g_z M g_z$) follows unimodal distribution (e.g., $\chi^2$). 
 
-  ![](./figs/problem.png)
+![](./figs/problem.png)
 
-See 
+### Key Idea
+Influence Function can be interpreted as linearized sample-loss deivation (or more simply **covariance**) given parameters are sampled from Laplace Approximation. 
 
-* **Key Idea**: Influence Function can be interpreted as linearized sample-loss deivation (or more simply **covariance**) given parameters are sampled from Laplace Approximation. 
+$$
+\mathcal{I}(z,z') 
+= \mathbb{E}[ \Delta \ell^\mathrm{lin}(z, \psi) \cdot \Delta \ell^\mathrm{lin}(z', \psi)]
+= \mathrm{Cov}[\ell^\mathrm{lin}(z,\psi), \ell^\mathrm{lin}(z', \psi)].
+$$
 
-  $$
-  \mathcal{I}(z,z') 
-  = \mathbb{E}[ \Delta \ell^\mathrm{lin}(z, \psi) \cdot \Delta \ell^\mathrm{lin}(z', \psi)]
-  = \mathrm{Cov}[\ell^\mathrm{lin}(z,\psi), \ell^\mathrm{lin}(z', \psi)].
-  $$
+### Solution
+(1) **Remove linearizations** in sample-loss deviation and (2) Replace Laplace Approximation with **Geometric Ensemble** to mitigate the singularity of Hessian.
 
-* **Solution**: (1) **Remove linearizations** in sample-loss deviation and (2) Replace Laplace Approximation with **Geometric Ensemble** to mitigate the singularity of Hessian.
-
-  ![](./figs/solution.png)
+![](./figs/solution.png)
 
 ## Supporting post-hoc methods
 
