@@ -33,7 +33,7 @@ def compute_influence_laplace(trainer, dataset_tr, dataset_te, self_influence, *
         influence = (loss_tr_deviation**2).mean(axis=-1) # (N_tr,)
     else:
         loss_te_list = compute_loss(posterior, dataset_te, num_test, la_method).mean(axis=0).reshape(1, -1) # (1, M)
-        loss_te_orig = np.maximum(metrics.log_dataset(trainer, dataset_te, num_test)['loss'].mean(), 0.05) # (1,)
+        loss_te_orig = np.maximum(metrics.log_dataset(trainer, dataset_te, num_test)['loss'].mean(), FLAGS.gex_eps) # (1,)
         loss_te_deviation = loss_te_list - loss_te_orig # (1, M)
         influence = (loss_te_deviation * loss_tr_deviation).mean(axis=-1) # (N_tr,)
     return influence
