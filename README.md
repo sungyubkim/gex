@@ -59,14 +59,14 @@ Official code implementation of "GEX: A flexible method for approximating influe
 
 ![](./figs/problem.png)
 
-    See 
+See 
 
 * **Key Idea**: Influence Function can be interpreted as linearized sample-loss deivation (or more simply **covariance**) given parameters are sampled from Laplace Approximation. 
 
 $$
 \mathcal{I}(z,z') 
-= \mathbb{E}_{\psi \sim p_\mathtt{LA}}\left[ \Delta \ell^\mathtt{lin}_{\theta^*}(z, \psi) \cdot \Delta \ell^\mathtt{lin}_{\theta^*}(z', \psi)\right]
-= \mathrm{Cov}_{\psi \sim p_\mathtt{LA}}\left[\ell^\mathrm{lin}_{\theta^*}(z,\psi), \ell^\mathrm{lin}_{\theta^*}(z', \psi)\right].
+= \mathbb{E}_{\psi \sim p_\mathrm{LA}}\left[ \Delta \ell^\mathrm{lin}_{\theta^*}(z, \psi) \cdot \Delta \ell^\mathrm{lin}_{\theta^*}(z', \psi)\right]
+= \mathrm{Cov}_{\psi \sim p_\mathrm{LA}}\left[\ell^\mathrm{lin}_{\theta^*}(z,\psi), \ell^\mathrm{lin}_{\theta^*}(z', \psi)\right].
 $$
 
 * **Solution**: (1) **Remove linearizations** in sample-loss deviation and (2) Replace Laplace Approximation with **Geometric Ensemble** to mitigate the singularity of Hessian.
@@ -74,9 +74,9 @@ $$
 $$
 \mathcal{I}
 \overset{\texttt{Delinearization}}{\underset{\texttt{Section 4.1}}{\longrightarrow}}
-\mathcal{I}_\mathtt{LA}
+\mathcal{I}_\mathrm{LA}
 \overset{\texttt{LA to GE}}{\underset{\texttt{Section 4.2}}{\longrightarrow}}
-\mathcal{I}_\mathtt{GEX}
+\mathcal{I}_\mathrm{GEX}
 $$
 
 ![](./figs/solution.png)
