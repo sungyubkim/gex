@@ -89,3 +89,7 @@ influence_kernel = compute_influence(trainer, dataset_tr, dataset_te, dataset_op
 * Arnoldi (`--if_method=arnoldi`)
 * Laplace approximation with K-FAC (`--if_method=la_kfac`)
 * Geometric Ensemble (`--if_method=la_fge`)
+
+## Acknowledgement
+
+This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government(MSIT) (No.2019-0-00075, Artificial Intelligence Graduate School Program(KAIST))
