@@ -1,5 +1,7 @@
 # Geometric Ensemble for sample eXplanation (GEX)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10032383.svg)](https://doi.org/10.5281/zenodo.10032383)
+
 Official code implementation of "GEX: A flexible method for approximating influence via Geometric Ensemble" (NeurIPS 2023)
 
 ## How to use this repo?
