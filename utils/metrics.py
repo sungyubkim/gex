@@ -251,48 +251,48 @@ def compute_disagree(pred_list, label):
     disagree = np.mean(disagree)
     return disagree
 
-# ece computation with probability (not logit)
-# from https://github.com/tensorflow/probability/blob/bedb9aac14500546a41380d48112d40a16cc88c0/tensorflow_probability/python/stats/calibration.py#L203
-import tensorflow as tf
-from tensorflow_probability.python.internal import dtype_util
-from tensorflow_probability.python.internal import prefer_static as ps
+# # ece computation with probability (not logit)
+# # from https://github.com/tensorflow/probability/blob/bedb9aac14500546a41380d48112d40a16cc88c0/tensorflow_probability/python/stats/calibration.py#L203
+# import tensorflow as tf
+# from tensorflow_probability.python.internal import dtype_util
+# from tensorflow_probability.python.internal import prefer_static as ps
 
-def _compute_calibration_bin_statistics(
-    num_bins, pred=None, labels_true=None, labels_predicted=None):
-  if labels_predicted is None:
-    pred_y = tf.argmax(pred, axis=1, output_type=labels_true.dtype)
-  else:
-    pred_y = labels_predicted
-  correct = tf.cast(tf.equal(pred_y, labels_true), tf.int32)
-  prob_y = tf.gather(
-      pred, pred_y[:, tf.newaxis], batch_dims=1)  # p(pred_y | x)
-  prob_y = tf.reshape(prob_y, (ps.size(prob_y),))
-  bins = tf.hirtogram_fixed_width_bins(prob_y, [0.0, 1.0], nbins=num_bins)
-  event_bin_counts = tf.math.bincount(
-      correct * num_bins + bins,
-      minlength=2 * num_bins,
-      maxlength=2 * num_bins)
-  event_bin_counts = tf.reshape(event_bin_counts, (2, num_bins))
-  pmean_observed = tf.math.unsorted_segment_sum(prob_y, bins, num_bins)
-  tiny = np.finfo(dtype_util.as_numpy_dtype(pred.dtype)).tiny
-  pmean_observed = pmean_observed / (
-      tf.cast(tf.reduce_sum(event_bin_counts, axis=0), pred.dtype) + tiny)
-  return event_bin_counts, pmean_observed
+# def _compute_calibration_bin_statistics(
+#     num_bins, pred=None, labels_true=None, labels_predicted=None):
+#   if labels_predicted is None:
+#     pred_y = tf.argmax(pred, axis=1, output_type=labels_true.dtype)
+#   else:
+#     pred_y = labels_predicted
+#   correct = tf.cast(tf.equal(pred_y, labels_true), tf.int32)
+#   prob_y = tf.gather(
+#       pred, pred_y[:, tf.newaxis], batch_dims=1)  # p(pred_y | x)
+#   prob_y = tf.reshape(prob_y, (ps.size(prob_y),))
+#   bins = tf.hirtogram_fixed_width_bins(prob_y, [0.0, 1.0], nbins=num_bins)
+#   event_bin_counts = tf.math.bincount(
+#       correct * num_bins + bins,
+#       minlength=2 * num_bins,
+#       maxlength=2 * num_bins)
+#   event_bin_counts = tf.reshape(event_bin_counts, (2, num_bins))
+#   pmean_observed = tf.math.unsorted_segment_sum(prob_y, bins, num_bins)
+#   tiny = np.finfo(dtype_util.as_numpy_dtype(pred.dtype)).tiny
+#   pmean_observed = pmean_observed / (
+#       tf.cast(tf.reduce_sum(event_bin_counts, axis=0), pred.dtype) + tiny)
+#   return event_bin_counts, pmean_observed
 
-def expected_calibration_error(num_bins, pred=None, labels_true=None,
-                               labels_predicted=None, name=None):
-  with tf.name_scope(name or 'expected_calibration_error'):
-    pred = tf.convert_to_tensor(pred, tf.float32)
-    labels_true = tf.convert_to_tensor(labels_true, tf.int32)
-    if labels_predicted is not None:
-      labels_predicted = tf.convert_to_tensor(labels_predicted)
-    event_bin_counts, pmean_observed = _compute_calibration_bin_statistics(
-        num_bins, pred=pred, labels_true=labels_true,
-        labels_predicted=labels_predicted)
-    event_bin_counts = tf.cast(event_bin_counts, tf.float32)
-    bin_n = tf.reduce_sum(event_bin_counts, axis=0)
-    pbins = bin_n / tf.reduce_sum(bin_n)
-    tiny = np.finfo(np.float32).tiny
-    pcorrect = event_bin_counts[1, :] / (bin_n + tiny)
-    ece = tf.reduce_sum(pbins * tf.abs(pcorrect - pmean_observed))
-  return float(ece)
+# def expected_calibration_error(num_bins, pred=None, labels_true=None,
+#                                labels_predicted=None, name=None):
+#   with tf.name_scope(name or 'expected_calibration_error'):
+#     pred = tf.convert_to_tensor(pred, tf.float32)
+#     labels_true = tf.convert_to_tensor(labels_true, tf.int32)
+#     if labels_predicted is not None:
+#       labels_predicted = tf.convert_to_tensor(labels_predicted)
+#     event_bin_counts, pmean_observed = _compute_calibration_bin_statistics(
+#         num_bins, pred=pred, labels_true=labels_true,
+#         labels_predicted=labels_predicted)
+#     event_bin_counts = tf.cast(event_bin_counts, tf.float32)
+#     bin_n = tf.reduce_sum(event_bin_counts, axis=0)
+#     pbins = bin_n / tf.reduce_sum(bin_n)
+#     tiny = np.finfo(np.float32).tiny
+#     pcorrect = event_bin_counts[1, :] / (bin_n + tiny)
+#     ece = tf.reduce_sum(pbins * tf.abs(pcorrect - pmean_observed))
+#   return float(ece)

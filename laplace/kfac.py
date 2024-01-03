@@ -10,8 +10,8 @@ import os
 import pickle
 
 from gex.utils import ckpt, metrics, mp, tool
-import kfac_jax
-from kfac_jax._src import utils
+# import kfac_jax
+# from kfac_jax._src import utils
 
 FLAGS = flags.FLAGS
 

@@ -93,11 +93,12 @@ def main(_):
     num_harmful = harmful_instance.sum()
     print(f'Compute new label for {num_harmful} instances with threshold {threshold:.4f}')
     
-    if FLAGS.problem_type=='cls':
-        prob_noisy = (prob_tr * label_tr).sum(axis=1, keepdims=True)
-        new_label = (1-harmful_instance).reshape(-1,1) * label_tr + harmful_instance.reshape(-1,1) * (np.log((1-prob_noisy)**(1/(ds.num_classes-1))+1e-12) / (np.log(prob_tr+1e-12) + 1e-12)) * (1-label_tr)
-    else:
-        new_label = (1-harmful_instance).reshape(-1,1) * label_tr + harmful_instance.reshape(-1,1) * prob_tr
+    # if FLAGS.problem_type=='cls':
+    #     prob_noisy = (prob_tr * label_tr).sum(axis=1, keepdims=True)
+    #     new_label = (1-harmful_instance).reshape(-1,1) * label_tr + harmful_instance.reshape(-1,1) * (np.log((1-prob_noisy)**(1/(ds.num_classes-1))+1e-12) / (np.log(prob_tr+1e-12) + 1e-12)) * (1-label_tr)
+    # else:
+    #     new_label = (1-harmful_instance).reshape(-1,1) * label_tr + harmful_instance.reshape(-1,1) * prob_tr
+    new_label = prob_tr
         
     train_opt = ds.load_dataset(
         batch_dims=batch_dims,
@@ -141,6 +142,7 @@ def main(_):
             acc_test = np.mean(log_test['acc'])
             res['acc_test'] = acc_test
             ckpt.dict2tsv(res, f'{influence_dir}/relabel_log.tsv')
+            ckpt.save_ckpt(trainer, f'{influence_dir}/relabel')
     
     log = {
         'pretrain': pretrain_hparams,

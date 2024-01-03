@@ -19,6 +19,7 @@ from gex.datasets.dbpedia import TextDataset
 from gex.utils import ckpt, metrics, mp, tool
 from gex.influence.estimate import compute_influence, get_influence_hparams
 
+flags.DEFINE_bool('use_relabel', False, help='use relabeld checkpoint')
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -30,6 +31,10 @@ def main(_):
     pretrain_dir = get_pretrain_hparams(True)
     influence_hparams = get_influence_hparams(pretrain_dir)
     influence_dir = get_influence_hparams(pretrain_dir, True)
+    if FLAGS.use_relabel:
+        pretrain_hparams, pretrain_dir = f'{influence_hparams}/relabel_selective', f'{influence_dir}/relabel_selective'
+        influence_hparams = get_influence_hparams(pretrain_dir)
+        influence_dir = get_influence_hparams(pretrain_dir, True)
     
     # define pseudo-random number generator
     rng = jax.random.PRNGKey(FLAGS.seed)
@@ -41,25 +46,6 @@ def main(_):
     else:
         ds = ImageDataset()
         
-    train_opt = ds.load_dataset(
-        batch_dims=batch_dims,
-        split='train',
-        shuffle=True,
-        augment=True,
-        )
-    train_eval = ds.load_dataset(
-        batch_dims=batch_dims,
-        split='train',
-        shuffle=False,
-        augment=False,
-        )
-    test_eval = ds.load_dataset(
-        batch_dims=batch_dims, 
-        split='validation' if (FLAGS.dataset=='imagenet2012') else 'test',
-        shuffle=False,
-        augment=False,
-        )
-    
     # initialize network and optimizer
     if FLAGS.dataset == 'dbpedia':
         trainer = init_trainer(
@@ -77,6 +63,41 @@ def main(_):
             )
     trainer = ckpt.load_ckpt(pretrain_dir, trainer)
     trainer = mp.replicate(trainer)
+    
+    train_eval = ds.load_dataset(
+        batch_dims=batch_dims,
+        split='train',
+        shuffle=False,
+        augment=False,
+        )
+    test_eval = ds.load_dataset(
+        batch_dims=batch_dims, 
+        split='validation' if (FLAGS.dataset=='imagenet2012') else 'test',
+        shuffle=False,
+        augment=False,
+        )
+    
+    if FLAGS.use_relabel:
+        logit_tr, label_tr = tool.get_logit_dataset(trainer, train_eval, ds.num_train, ds.num_classes)
+        if FLAGS.problem_type=='cls':
+            prob_tr = jax.nn.softmax(logit_tr)
+        elif FLAGS.problem_type=='multitask':
+            prob_tr = jax.nn.sigmoid(logit_tr)
+        new_label = prob_tr
+        train_opt = ds.load_dataset(
+            batch_dims=batch_dims,
+            split='train',
+            shuffle=True,
+            augment=True,
+            new_label=new_label,
+            )
+    else:
+        train_opt = ds.load_dataset(
+            batch_dims=batch_dims,
+            split='train',
+            shuffle=True,
+            augment=True,
+            )
     
     influence = compute_influence(trainer, train_eval, test_eval, 
                                     FLAGS.self_influence,

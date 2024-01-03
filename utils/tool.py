@@ -16,7 +16,7 @@ from jax.flatten_util import ravel_pytree
 import haiku as hk
 import jmp
 
-flags.DEFINE_enum('problem_type', 'cls', ['reg', 'cls', 'multitask'],
+flags.DEFINE_enum('problem_type', 'multitask', ['reg', 'cls', 'multitask'],
 help='type of problem (reg: regression, cls: classification)')
 flags.DEFINE_float('label_smooth', 0.0, help='label smoothing coefficient')
 flags.DEFINE_bool('use_bn', True, help='use Batch Normalization layer')
